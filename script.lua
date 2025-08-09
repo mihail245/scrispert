@@ -1,130 +1,134 @@
--- Настройки
-local MENU_ICON = "http://www.roblox.com/asset/?id=114540012460350" -- Замените на ваш ImageId
-local MENU_SIZE = UDim2.new(0.1, 0, 0.1, 0)
-local MENU_POSITION = UDim2.new(0.05, 0, 0.8, 0)
-local MENU_COLOR = Color3.fromRGB(40, 40, 40)
-local BUTTON_COLOR = Color3.fromRGB(60, 60, 60)
+-- Мобильное меню для Roblox с красивой иконкой
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local localPlayer = Players.LocalPlayer
+local playerGui = localPlayer:WaitForChild("PlayerGui")
+
+-- Настройки стиля
+local MENU_COLOR = Color3.fromRGB(30, 30, 40)
+local BUTTON_COLOR = Color3.fromRGB(50, 50, 70)
+local ACCENT_COLOR = Color3.fromRGB(0, 170, 255)
 local TEXT_COLOR = Color3.fromRGB(255, 255, 255)
 
 -- Создаем интерфейс
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
-local GuiService = game:GetService("GuiService")
-local CoreGui = game:GetService("CoreGui")
-
--- Создаем главный GUI
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "MobileMenu"
-ScreenGui.Parent = CoreGui
+ScreenGui.Name = "MobileScriptMenu"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Иконка меню
+-- Иконка меню (используем вашу ссылку)
 local MenuIcon = Instance.new("ImageButton")
 MenuIcon.Name = "MenuIcon"
-MenuIcon.Image = MENU_ICON
-MenuIcon.Size = MENU_SIZE
-MenuIcon.Position = MENU_POSITION
+MenuIcon.Image = "http://www.roblox.com/asset/?id=13179660638" -- Замените на ваш ImageId
+MenuIcon.Size = UDim2.new(0.1, 0, 0.1, 0)
+MenuIcon.Position = UDim2.new(0.02, 0, 0.8, 0)
 MenuIcon.BackgroundTransparency = 1
 MenuIcon.Parent = ScreenGui
 
 -- Главное меню
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
-MainFrame.Size = UDim2.new(0.6, 0, 0.7, 0)
-MainFrame.Position = UDim2.new(0.2, 0, 0.15, 0)
+MainFrame.Size = UDim2.new(0.7, 0, 0.7, 0)
+MainFrame.Position = UDim2.new(0.15, 0, 0.15, 0)
 MainFrame.BackgroundColor3 = MENU_COLOR
-MainFrame.BorderSizePixel = 0
+MainFrame.BackgroundTransparency = 0.1
 MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
 
--- Заголовок меню
+-- Эффекты для меню
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0.03, 0)
+UICorner.Parent = MainFrame
+
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = ACCENT_COLOR
+UIStroke.Thickness = 2
+UIStroke.Parent = MainFrame
+
+-- Заголовок
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
-Title.Text = "Меню скрипта"
 Title.Size = UDim2.new(1, 0, 0.1, 0)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.BackgroundTransparency = 1
+Title.Text = "Меню скрипта"
 Title.TextColor3 = TEXT_COLOR
-Title.Font = Enum.Font.SourceSansBold
+Title.Font = Enum.Font.GothamBold
 Title.TextSize = 20
+Title.BackgroundTransparency = 1
 Title.Parent = MainFrame
 
--- Список функций
+-- Область прокрутки
 local ScrollingFrame = Instance.new("ScrollingFrame")
 ScrollingFrame.Name = "ScrollingFrame"
 ScrollingFrame.Size = UDim2.new(1, 0, 0.9, 0)
 ScrollingFrame.Position = UDim2.new(0, 0, 0.1, 0)
 ScrollingFrame.BackgroundTransparency = 1
-ScrollingFrame.ScrollBarThickness = 5
+ScrollingFrame.ScrollBarThickness = 6
+ScrollingFrame.ScrollBarImageColor3 = ACCENT_COLOR
 ScrollingFrame.Parent = MainFrame
 
--- UIListLayout для кнопок
 local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Padding = UDim.new(0, 5)
+UIListLayout.Padding = UDim.new(0, 10)
 UIListLayout.Parent = ScrollingFrame
 
--- Функции для меню
-local functions = {
-    {
-        name = "Информация об игроке",
-        func = function()
-            GetPlayerData()
-        end
-    },
-    {
-        name = "Изменить скорость",
-        func = function()
-            ChangePlayerSpeed()
-        end
-    },
-    {
-        name = "Телепорт к игрокам",
-        func = function()
-            BringPlayers()
-        end
-    },
-    {
-        name = "Режим NoClip",
-        func = function()
-            ToggleNoClip()
-        end
-    },
-    {
-        name = "Бессмертие",
-        func = function()
-            ToggleGodMode()
-        end
-    },
-    {
-        name = "Бесконечный прыжок",
-        func = function()
-            ToggleInfiniteJump()
-        end
-    }
-}
-
--- Создаем кнопки для каждой функции
-for i, funcData in ipairs(functions) do
-    local button = Instance.new("TextButton")
-    button.Name = funcData.name
-    button.Text = funcData.name
-    button.Size = UDim2.new(0.95, 0, 0, 40)
-    button.Position = UDim2.new(0.025, 0, 0, (i-1)*45)
-    button.BackgroundColor3 = BUTTON_COLOR
-    button.TextColor3 = TEXT_COLOR
-    button.Font = Enum.Font.SourceSans
-    button.TextSize = 18
-    button.Parent = ScrollingFrame
-    
-    button.MouseButton1Click:Connect(function()
-        funcData.func()
-    end)
-end
-
--- Обновляем размер ScrollingFrame
+-- Автоматическое изменение размера прокрутки
 UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
     ScrollingFrame.CanvasSize = UDim2.new(0, 0, 0, UIListLayout.AbsoluteContentSize.Y)
 end)
+
+-- Функция создания кнопки
+local function CreateButton(text, callback)
+    local button = Instance.new("TextButton")
+    button.Name = text
+    button.Text = text
+    button.Size = UDim2.new(0.95, 0, 0, 50)
+    button.BackgroundColor3 = BUTTON_COLOR
+    button.TextColor3 = TEXT_COLOR
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 16
+    button.AutoButtonColor = false
+    
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0.1, 0)
+    buttonCorner.Parent = button
+    
+    local buttonStroke = Instance.new("UIStroke")
+    buttonStroke.Color = ACCENT_COLOR
+    buttonStroke.Thickness = 1
+    buttonStroke.Parent = button
+    
+    -- Анимации при наведении
+    button.MouseEnter:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.1), {
+            BackgroundColor3 = BUTTON_COLOR:Lerp(ACCENT_COLOR, 0.3),
+            Size = UDim2.new(0.97, 0, 0, 55)
+        }):Play()
+    end)
+    
+    button.MouseLeave:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.1), {
+            BackgroundColor3 = BUTTON_COLOR,
+            Size = UDim2.new(0.95, 0, 0, 50)
+        }):Play()
+    end)
+    
+    button.MouseButton1Click:Connect(function()
+        TweenService:Create(button, TweenInfo.new(0.1), {
+            BackgroundColor3 = ACCENT_COLOR,
+            TextColor3 = Color3.new(1,1,1)
+        }):Play()
+        task.wait(0.1)
+        TweenService:Create(button, TweenInfo.new(0.1), {
+            BackgroundColor3 = BUTTON_COLOR,
+            TextColor3 = TEXT_COLOR
+        }):Play()
+        callback()
+    end)
+    
+    button.Parent = ScrollingFrame
+    return button
+end
 
 -- Перемещение иконки меню
 local dragging
@@ -166,261 +170,284 @@ end)
 -- Открытие/закрытие меню
 MenuIcon.MouseButton1Click:Connect(function()
     MainFrame.Visible = not MainFrame.Visible
+    if MainFrame.Visible then
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+            Position = UDim2.new(0.15, 0, 0.15, 0)
+        }):Play()
+    else
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
+            Position = UDim2.new(-0.7, 0, 0.15, 0)
+        }):Play()
+    end
 end)
 
--- Реализация функций
-function GetPlayerData()
-    local playerListFrame = Instance.new("Frame")
-    playerListFrame.Name = "PlayerListFrame"
-    playerListFrame.Size = UDim2.new(0.9, 0, 0.8, 0)
-    playerListFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
-    playerListFrame.BackgroundColor3 = MENU_COLOR
-    playerListFrame.Parent = MainFrame
+-- Функция телепортации
+local function TeleportTo(position)
+    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        localPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(position)
+    end
+end
+
+-- Функция для выбора игрока
+local function SelectPlayer(title, callback)
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.8, 0, 0.7, 0)
+    frame.Position = UDim2.new(0.1, 0, 0.15, 0)
+    frame.BackgroundColor3 = MENU_COLOR
+    frame.BackgroundTransparency = 0.1
+    frame.Parent = ScreenGui
     
-    local title = Instance.new("TextLabel")
-    title.Text = "Выберите игрока"
-    title.Size = UDim2.new(1, 0, 0.1, 0)
-    title.BackgroundTransparency = 1
-    title.TextColor3 = TEXT_COLOR
-    title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 18
-    title.Parent = playerListFrame
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.03, 0)
+    corner.Parent = frame
     
-    local closeButton = Instance.new("TextButton")
-    closeButton.Text = "X"
-    closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-    closeButton.Position = UDim2.new(0.9, 0, 0, 0)
-    closeButton.BackgroundColor3 = BUTTON_COLOR
-    closeButton.TextColor3 = TEXT_COLOR
-    closeButton.Parent = playerListFrame
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = ACCENT_COLOR
+    stroke.Thickness = 2
+    stroke.Parent = frame
     
-    closeButton.MouseButton1Click:Connect(function()
-        playerListFrame:Destroy()
-    end)
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0.1, 0)
+    titleLabel.Text = title
+    titleLabel.TextColor3 = TEXT_COLOR
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextSize = 18
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Parent = frame
     
-    local scrollingFrame = Instance.new("ScrollingFrame")
-    scrollingFrame.Size = UDim2.new(1, 0, 0.9, 0)
-    scrollingFrame.Position = UDim2.new(0, 0, 0.1, 0)
-    scrollingFrame.BackgroundTransparency = 1
-    scrollingFrame.Parent = playerListFrame
+    local scrollFrame = Instance.new("ScrollingFrame")
+    scrollFrame.Size = UDim2.new(1, 0, 0.8, 0)
+    scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
+    scrollFrame.BackgroundTransparency = 1
+    scrollFrame.ScrollBarThickness = 6
+    scrollFrame.ScrollBarImageColor3 = ACCENT_COLOR
+    scrollFrame.Parent = frame
     
     local layout = Instance.new("UIListLayout")
     layout.Padding = UDim.new(0, 5)
-    layout.Parent = scrollingFrame
+    layout.Parent = scrollFrame
     
+    local closeButton = CreateButton("Закрыть")
+    closeButton.Size = UDim2.new(0.9, 0, 0, 40)
+    closeButton.Position = UDim2.new(0.05, 0, 0.9, 0)
+    closeButton.Parent = frame
+    
+    closeButton.MouseButton1Click:Connect(function()
+        frame:Destroy()
+    end)
+    
+    -- Добавляем игроков
     for _, player in ipairs(Players:GetPlayers()) do
-        local button = Instance.new("TextButton")
-        button.Text = player.Name
-        button.Size = UDim2.new(0.95, 0, 0, 40)
-        button.Position = UDim2.new(0.025, 0, 0, 0)
-        button.BackgroundColor3 = BUTTON_COLOR
-        button.TextColor3 = TEXT_COLOR
-        button.Font = Enum.Font.SourceSans
-        button.TextSize = 16
-        button.Parent = scrollingFrame
-        
-        button.MouseButton1Click:Connect(function()
-            -- Здесь можно добавить вывод информации об игроке
-            local character = player.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    print("Имя: "..player.Name)
-                    print("Здоровье: "..humanoid.Health.."/"..humanoid.MaxHealth)
-                    print("Скорость: "..humanoid.WalkSpeed)
-                end
-            end
-            playerListFrame:Destroy()
-        end)
+        if player ~= localPlayer then
+            local button = CreateButton(player.Name, function()
+                callback(player)
+                frame:Destroy()
+            end)
+            button.Size = UDim2.new(0.9, 0, 0, 40)
+            button.Position = UDim2.new(0.05, 0, 0, 0)
+            button.Parent = scrollFrame
+        end
     end
     
+    -- Обновляем размер прокрутки
     layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
+        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
     end)
 end
 
-function ChangePlayerSpeed()
-    local speedFrame = Instance.new("Frame")
-    speedFrame.Name = "SpeedFrame"
-    speedFrame.Size = UDim2.new(0.9, 0, 0.4, 0)
-    speedFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-    speedFrame.BackgroundColor3 = MENU_COLOR
-    speedFrame.Parent = MainFrame
+-- Функция для выбора скорости
+local function SelectSpeed()
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(0.8, 0, 0.3, 0)
+    frame.Position = UDim2.new(0.1, 0, 0.35, 0)
+    frame.BackgroundColor3 = MENU_COLOR
+    frame.BackgroundTransparency = 0.1
+    frame.Parent = ScreenGui
     
-    local title = Instance.new("TextLabel")
-    title.Text = "Выберите скорость"
-    title.Size = UDim2.new(1, 0, 0.2, 0)
-    title.BackgroundTransparency = 1
-    title.TextColor3 = TEXT_COLOR
-    title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 18
-    title.Parent = speedFrame
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0.03, 0)
+    corner.Parent = frame
     
-    local closeButton = Instance.new("TextButton")
-    closeButton.Text = "X"
-    closeButton.Size = UDim2.new(0.1, 0, 0.2, 0)
-    closeButton.Position = UDim2.new(0.9, 0, 0, 0)
-    closeButton.BackgroundColor3 = BUTTON_COLOR
-    closeButton.TextColor3 = TEXT_COLOR
-    closeButton.Parent = speedFrame
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = ACCENT_COLOR
+    stroke.Thickness = 2
+    stroke.Parent = frame
     
-    closeButton.MouseButton1Click:Connect(function()
-        speedFrame:Destroy()
-    end)
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Size = UDim2.new(1, 0, 0.2, 0)
+    titleLabel.Text = "Выберите скорость"
+    titleLabel.TextColor3 = TEXT_COLOR
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.TextSize = 18
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Parent = frame
     
-    local speeds = {16, 25, 50, 100, 200}
+    local speeds = {16, 25, 50, 75, 100, 150}
     
     for i, speed in ipairs(speeds) do
-        local button = Instance.new("TextButton")
-        button.Text = speed.." studs/s"
-        button.Size = UDim2.new(0.9, 0, 0, 40)
-        button.Position = UDim2.new(0.05, 0, 0.2 + (i-1)*0.15, 0)
-        button.BackgroundColor3 = BUTTON_COLOR
-        button.TextColor3 = TEXT_COLOR
-        button.Font = Enum.Font.SourceSans
-        button.TextSize = 16
-        button.Parent = speedFrame
-        
-        button.MouseButton1Click:Connect(function()
-            local character = LocalPlayer.Character
-            if character then
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = speed
-                end
+        local button = CreateButton(speed .. " studs/s", function()
+            if localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                localPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = speed
             end
-            speedFrame:Destroy()
+            frame:Destroy()
         end)
+        button.Size = UDim2.new(0.9, 0, 0, 35)
+        button.Position = UDim2.new(0.05, 0, 0.2 + (i-1)*0.12, 0)
+        button.Parent = frame
     end
 end
 
-function BringPlayers()
-    local bringFrame = Instance.new("Frame")
-    bringFrame.Name = "BringFrame"
-    bringFrame.Size = UDim2.new(0.9, 0, 0.8, 0)
-    bringFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
-    bringFrame.BackgroundColor3 = MENU_COLOR
-    bringFrame.Parent = MainFrame
-    
-    local title = Instance.new("TextLabel")
-    title.Text = "Телепорт игроков к себе"
-    title.Size = UDim2.new(1, 0, 0.1, 0)
-    title.BackgroundTransparency = 1
-    title.TextColor3 = TEXT_COLOR
-    title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 18
-    title.Parent = bringFrame
-    
-    local closeButton = Instance.new("TextButton")
-    closeButton.Text = "X"
-    closeButton.Size = UDim2.new(0.1, 0, 0.1, 0)
-    closeButton.Position = UDim2.new(0.9, 0, 0, 0)
-    closeButton.BackgroundColor3 = BUTTON_COLOR
-    closeButton.TextColor3 = TEXT_COLOR
-    closeButton.Parent = bringFrame
-    
-    closeButton.MouseButton1Click:Connect(function()
-        bringFrame:Destroy()
-    end)
-    
-    local scrollingFrame = Instance.new("ScrollingFrame")
-    scrollingFrame.Size = UDim2.new(1, 0, 0.9, 0)
-    scrollingFrame.Position = UDim2.new(0, 0, 0.1, 0)
-    scrollingFrame.BackgroundTransparency = 1
-    scrollingFrame.Parent = bringFrame
-    
-    local layout = Instance.new("UIListLayout")
-    layout.Padding = UDim.new(0, 5)
-    layout.Parent = scrollingFrame
-    
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local button = Instance.new("TextButton")
-            button.Text = player.Name
-            button.Size = UDim2.new(0.95, 0, 0, 40)
-            button.Position = UDim2.new(0.025, 0, 0, 0)
-            button.BackgroundColor3 = BUTTON_COLOR
-            button.TextColor3 = TEXT_COLOR
-            button.Font = Enum.Font.SourceSans
-            button.TextSize = 16
-            button.Parent = scrollingFrame
-            
-            button.MouseButton1Click:Connect(function()
-                local character = LocalPlayer.Character
-                local targetCharacter = player.Character
-                if character and targetCharacter then
-                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                    local targetRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                    if humanoidRootPart and targetRootPart then
-                        targetRootPart.CFrame = humanoidRootPart.CFrame + Vector3.new(0, 0, -5)
-                    end
-                end
-                bringFrame:Destroy()
-            end)
-        end
-    end
-    
-    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y)
-    end)
-end
+-- Основные функции меню
 
-local noclip = false
-function ToggleNoClip()
-    noclip = not noclip
-    local character = LocalPlayer.Character
-    if character then
-        for _, part in ipairs(character:GetDescendants()) do
-            if part:IsA("BasePart") then
-                part.CanCollide = not noclip
-            end
-        end
-    end
-    print("NoClip: "..tostring(noclip))
-end
-
-local godmode = false
-function ToggleGodMode()
-    godmode = not godmode
-    local character = LocalPlayer.Character
-    if character then
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid.MaxHealth = godmode and math.huge or 100
-            humanoid.Health = godmode and math.huge or 100
-        end
-    end
-    print("GodMode: "..tostring(godmode))
-end
-
-local infiniteJump = false
-function ToggleInfiniteJump()
-    infiniteJump = not infiniteJump
-    if infiniteJump then
-        LocalPlayer.CharacterAdded:Connect(function(character)
-            local humanoid = character:WaitForChild("Humanoid")
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
-        end)
-        
-        UserInputService.JumpRequest:Connect(function()
-            if infiniteJump then
-                local character = LocalPlayer.Character
-                if character then
-                    local humanoid = character:FindFirstChildOfClass("Humanoid")
-                    if humanoid then
-                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                    end
-                end
-            end
-        end)
-    else
-        local character = LocalPlayer.Character
-        if character then
-            local humanoid = character:FindFirstChildOfClass("Humanoid")
+-- 1. Информация об игроке
+CreateButton("Информация об игроке", function()
+    SelectPlayer("Выберите игрока", function(player)
+        if player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
             if humanoid then
-                humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                local message = string.format(
+                    "Имя: %s\nЗдоровье: %d/%d\nСкорость: %d\nСила прыжка: %d",
+                    player.Name,
+                    humanoid.Health,
+                    humanoid.MaxHealth,
+                    humanoid.WalkSpeed,
+                    humanoid.JumpPower
+                )
+                
+                -- Показываем информацию в новом окне
+                local infoFrame = Instance.new("Frame")
+                infoFrame.Size = UDim2.new(0.8, 0, 0.4, 0)
+                infoFrame.Position = UDim2.new(0.1, 0, 0.3, 0)
+                infoFrame.BackgroundColor3 = MENU_COLOR
+                infoFrame.BackgroundTransparency = 0.1
+                infoFrame.Parent = ScreenGui
+                
+                local corner = Instance.new("UICorner")
+                corner.CornerRadius = UDim.new(0.03, 0)
+                corner.Parent = infoFrame
+                
+                local stroke = Instance.new("UIStroke")
+                stroke.Color = ACCENT_COLOR
+                stroke.Thickness = 2
+                stroke.Parent = infoFrame
+                
+                local textLabel = Instance.new("TextLabel")
+                textLabel.Size = UDim2.new(0.9, 0, 0.8, 0)
+                textLabel.Position = UDim2.new(0.05, 0, 0.1, 0)
+                textLabel.Text = message
+                textLabel.TextColor3 = TEXT_COLOR
+                textLabel.Font = Enum.Font.Gotham
+                textLabel.TextSize = 16
+                textLabel.TextWrapped = true
+                textLabel.BackgroundTransparency = 1
+                textLabel.Parent = infoFrame
+                
+                local closeButton = CreateButton("Закрыть")
+                closeButton.Size = UDim2.new(0.4, 0, 0, 35)
+                closeButton.Position = UDim2.new(0.3, 0, 0.8, 0)
+                closeButton.Parent = infoFrame
+                
+                closeButton.MouseButton1Click:Connect(function()
+                    infoFrame:Destroy()
+                end)
+            end
+        end
+    end)
+end)
+
+-- 2. Изменить скорость
+CreateButton("Изменить скорость", SelectSpeed)
+
+-- 3. Телепорт к игрокам
+CreateButton("Телепорт к игрокам", function()
+    SelectPlayer("Телепорт к игроку", function(player)
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            TeleportTo(player.Character.HumanoidRootPart.Position)
+        end
+    end)
+end)
+
+-- 4. Привести игроков
+CreateButton("Привести игроков", function()
+    SelectPlayer("Привести игрока", function(player)
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and
+           localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = localPlayer.Character.HumanoidRootPart.CFrame
+        end
+    end)
+end)
+
+-- 5. Режим NoClip
+local noclipEnabled = false
+CreateButton("NoClip [Выкл]", function(button)
+    noclipEnabled = not noclipEnabled
+    button.Text = "NoClip [" .. (noclipEnabled and "Вкл" or "Выкл") .. "]"
+    
+    if localPlayer.Character then
+        for _, part in ipairs(localPlayer.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = not noclipEnabled
             end
         end
     end
-    print("InfiniteJump: "..tostring(infiniteJump))
-end
+end)
+
+-- 6. Бесконечный прыжок
+local infiniteJumpEnabled = false
+CreateButton("Беск. прыжок [Выкл]", function(button)
+    infiniteJumpEnabled = not infiniteJumpEnabled
+    button.Text = "Беск. прыжок [" .. (infiniteJumpEnabled and "Вкл" or "Выкл") .. "]"
+    
+    if infiniteJumpEnabled then
+        UserInputService.JumpRequest:Connect(function()
+            if infiniteJumpEnabled and localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                localPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    end
+end)
+
+-- 7. Сохранить позицию
+local savedPosition
+CreateButton("Сохранить позицию", function()
+    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        savedPosition = localPlayer.Character.HumanoidRootPart.Position
+    end
+end)
+
+-- 8. Вернуться к сохраненной
+CreateButton("Вернуться к сохраненной", function()
+    if savedPosition then
+        TeleportTo(savedPosition)
+    end
+end)
+
+-- 9. Телепорт вверх/вниз
+CreateButton("Телепорт вверх", function()
+    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local currentPos = localPlayer.Character.HumanoidRootPart.Position
+        TeleportTo(currentPos + Vector3.new(0, 50, 0))
+    end
+end)
+
+CreateButton("Телепорт вниз", function()
+    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local currentPos = localPlayer.Character.HumanoidRootPart.Position
+        TeleportTo(currentPos + Vector3.new(0, -50, 0))
+    end
+end)
+
+-- 10. Копировать координаты
+CreateButton("Копировать координаты", function()
+    if localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local pos = localPlayer.Character.HumanoidRootPart.Position
+        setclipboard(string.format("%.1f, %.1f, %.1f", pos.X, pos.Y, pos.Z))
+    end
+end)
+
+-- Добавляем GUI в игру
+ScreenGui.Parent = playerGui
+
+-- Анимация появления меню
+MainFrame.Position = UDim2.new(-0.7, 0, 0.15, 0)
+MenuIcon.MouseButton1Click:Connect()
